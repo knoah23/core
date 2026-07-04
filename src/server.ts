@@ -2,8 +2,16 @@ import { OMSSServer } from '@omss/framework';
 import 'dotenv/config';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { setGlobalDispatcher, ProxyAgent } from 'undici';
 import { knownThirdPartyProxies } from './thirdPartyProxies.js';
 import { streamPatterns } from './streamPatterns.js';
+
+// Configure Proxy Rotator / Residential Proxy if configured in environment
+const proxyUrl = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+if (proxyUrl) {
+    console.log(`[Server] Routing backend requests via proxy: ${proxyUrl.replace(/:[^:@]+@/, ':****@')}`);
+    setGlobalDispatcher(new ProxyAgent(proxyUrl));
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
